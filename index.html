@@ -24,18 +24,24 @@
       padding: 24px;
       border-radius: 12px;
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       box-shadow: 0 10px 30px rgba(0,0,0,.4);
       box-sizing: border-box;
     }
 
     h1 {
-      margin: 0 0 12px 0;
+      margin: 0 0 14px 0;
       font-size: 22px;
       line-height: 1.2;
     }
 
-    /* Consistent vertical rhythm */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
     .field {
       display: flex;
       flex-direction: column;
@@ -43,15 +49,18 @@
       margin-top: 14px;
     }
 
+    .field.compact {
+      margin-top: 0;
+    }
+
     label {
       font-size: 12px;
       font-weight: 500;
-      color: rgba(255,255,255,.7);
+      color: rgba(255,255,255,.75);
       margin: 0;
     }
 
-    input,
-    select {
+    input, select {
       width: 100%;
       height: 44px;
       padding: 10px 12px;
@@ -63,15 +72,24 @@
       box-sizing: border-box;
     }
 
-    /* Hint spacing */
-    .hint {
-      font-size: 12px;
-      color: rgba(255,255,255,.65);
-      line-height: 1.4;
-      margin-top: 2px;
+    input[type="range"] {
+      height: 44px;
+      padding: 0;
     }
 
-    /* Buttons grouped + aligned */
+    .hint {
+      font-size: 12px;
+      color: rgba(255,255,255,.70);
+      line-height: 1.45;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .hint strong { color: rgba(255,255,255,.92); }
+
     .actions {
       display: flex;
       flex-direction: column;
@@ -111,15 +129,37 @@
       justify-content: center;
     }
 
-    /* Ensure the QR canvas/image never overflows */
-    #qr canvas,
-    #qr img {
+    #qr canvas {
       max-width: 100%;
       height: auto;
-      border-radius: 10px;
-      background: #fff;
-      padding: 10px;
-      box-sizing: border-box;
+      display: block;
+    }
+
+    .small {
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+    }
+
+    .inline-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-left: 6px;
+      background: rgba(99,102,241,.15);
+      border: 1px solid rgba(99,102,241,.35);
+      color: rgba(255,255,255,.9);
+    }
+
+    .warn {
+      background: rgba(245, 158, 11, .12);
+      border: 1px solid rgba(245, 158, 11, .35);
     }
   </style>
 </head>
@@ -129,27 +169,80 @@
 
     <div class="field">
       <input id="text" placeholder="Enter a URL or text" />
+      <div class="small">Tip: If you type a bare domain like <code>example.com</code>, we’ll assume <code>https://</code>.</div>
     </div>
 
-    <div class="field">
-      <label for="ecLevel">Error correction</label>
-      <select id="ecLevel">
-        <option value="auto" selected>Auto (recommended)</option>
-        <option value="M">M (balanced)</option>
-        <option value="Q">Q (more robust)</option>
-        <option value="H">H (most robust)</option>
-      </select>
-      <div class="hint" id="ecHint"></div>
+    <!-- Print + robustness controls -->
+    <div class="grid">
+      <div class="field compact">
+        <label for="printSize">Print width</label>
+        <input id="printSize" type="number" min="0.5" step="0.1" value="2.0" />
+      </div>
+
+      <div class="field compact">
+        <label for="printUnit">Units</label>
+        <select id="printUnit">
+          <option value="in" selected>inches</option>
+          <option value="cm">cm</option>
+        </select>
+      </div>
+
+      <div class="field compact">
+        <label for="dpi">DPI (export)</label>
+        <select id="dpi">
+          <option value="150">150</option>
+          <option value="300" selected>300 (recommended)</option>
+          <option value="600">600</option>
+        </select>
+      </div>
+
+      <div class="field compact">
+        <label for="ecLevel">Error correction</label>
+        <select id="ecLevel">
+          <option value="auto" selected>Auto (recommended)</option>
+          <option value="M">M (balanced)</option>
+          <option value="Q">Q (more robust)</option>
+          <option value="H">H (most robust)</option>
+        </select>
+      </div>
     </div>
 
-    <div class="field">
-      <label for="fileType">Download format</label>
-      <select id="fileType">
-        <option value="png" selected>PNG (recommended)</option>
-        <option value="jpeg">JPEG</option>
-        <option value="webp">WEBP</option>
-      </select>
+    <!-- Style controls -->
+    <div class="grid" style="margin-top: 14px;">
+      <div class="field compact">
+        <label for="frameCorners">Frame corners</label>
+        <select id="frameCorners">
+          <option value="square" selected>90° (square)</option>
+          <option value="rounded">Rounded</option>
+        </select>
+      </div>
+
+      <div class="field compact">
+        <label for="cornerRadius">Corner radius</label>
+        <input id="cornerRadius" type="range" min="0" max="36" step="1" value="12" />
+        <div class="inline-note" id="cornerRadiusNote">12 px</div>
+      </div>
+
+      <div class="field compact">
+        <label for="fileType">Download format</label>
+        <select id="fileType">
+          <option value="png" selected>PNG (recommended)</option>
+          <option value="jpeg">JPEG</option>
+          <option value="webp">WEBP</option>
+        </select>
+      </div>
+
+      <div class="field compact">
+        <label for="quietZone">Quiet zone</label>
+        <select id="quietZone">
+          <option value="4" selected>4 modules (standard)</option>
+          <option value="6">6 modules (extra safe)</option>
+          <option value="8">8 modules (very safe)</option>
+        </select>
+      </div>
     </div>
+
+    <div class="hint" id="printHint"></div>
 
     <div class="actions">
       <button class="primary" id="generate">Generate</button>
@@ -159,32 +252,28 @@
     <div id="qr"></div>
   </div>
 
-  <!-- QRCode global (qrcodejs) -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- QR matrix generator (lets us custom-render) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 
   <script>
-    // DOM refs
+    // --- DOM refs
     const input = document.getElementById("text");
-    const qrBox = document.getElementById("qr");
+    const printSizeEl = document.getElementById("printSize");
+    const printUnitEl = document.getElementById("printUnit");
+    const dpiEl = document.getElementById("dpi");
+    const ecSelect = document.getElementById("ecLevel");
+    const frameCornersEl = document.getElementById("frameCorners");
+    const cornerRadiusEl = document.getElementById("cornerRadius");
+    const cornerRadiusNote = document.getElementById("cornerRadiusNote");
+    const fileTypeEl = document.getElementById("fileType");
+    const quietZoneEl = document.getElementById("quietZone");
+    const hintEl = document.getElementById("printHint");
+
     const genBtn = document.getElementById("generate");
     const dlBtn = document.getElementById("download");
-    const ecSelect = document.getElementById("ecLevel");
-    const fileTypeSelect = document.getElementById("fileType");
-    const ecHint = document.getElementById("ecHint");
+    const qrBox = document.getElementById("qr");
 
-    // qrcodejs correction levels
-    const EC = {
-      M: QRCode.CorrectLevel.M,
-      Q: QRCode.CorrectLevel.Q,
-      H: QRCode.CorrectLevel.H
-    };
-
-    // Strength ordering for "auto-upgrade"
-    const EC_ORDER = ["M", "Q", "H"];
-    function maxEC(a, b) {
-      return EC_ORDER.indexOf(a) >= EC_ORDER.indexOf(b) ? a : b;
-    }
-
+    // --- Helpers
     function looksLikeBareDomain(s) {
       return (
         /^[^\s]+$/.test(s) &&
@@ -200,90 +289,129 @@
       return v;
     }
 
-    // Defaults: reliable across URLs & longer links
-    function autoECForLength(len) {
-      if (len > 200) return "H";
-      if (len > 100) return "Q";
-      return "M";
+    function inchesFrom(size, unit) {
+      const n = Number(size);
+      if (!Number.isFinite(n) || n <= 0) return null;
+      return unit === "cm" ? (n / 2.54) : n;
     }
 
-    function sizeForLength(len) {
-      if (len > 200) return 512;
-      if (len > 100) return 384;
-      return 256;
+    function mmFromInches(inches) {
+      return inches * 25.4;
     }
 
-    function effectiveEC(userChoice, len) {
-      const auto = autoECForLength(len);
-      if (userChoice === "auto") return auto;
-      // User sets minimum; we may upgrade for long strings
-      return maxEC(userChoice, auto);
+    // Strength ordering for auto-upgrade
+    const EC_ORDER = ["M", "Q", "H"];
+    function maxEC(a, b) {
+      return EC_ORDER.indexOf(a) >= EC_ORDER.indexOf(b) ? a : b;
     }
 
-    function updateHint() {
-      const value = normalizeValue(input.value);
-      const len = value.length;
-      const choice = ecSelect.value;
-      const ecKey = effectiveEC(choice, len);
-      const size = sizeForLength(len);
+    // Recommend error correction based on *printed module size* (mm)
+    // Rule of thumb:
+    // - >= 1.0mm modules: M is usually fine
+    // - 0.7–1.0mm: Q recommended
+    // - < 0.7mm: H recommended
+    function recommendedECFromModuleMM(moduleMM) {
+      if (moduleMM >= 1.0) return "M";
+      if (moduleMM >= 0.7) return "Q";
+      return "H";
+    }
 
-      const ecLabel =
-        ecKey === "M" ? "M (balanced)" :
-        ecKey === "Q" ? "Q (more robust)" :
-        "H (most robust)";
-
-      const mode =
-        choice === "auto"
-          ? "Auto is selecting"
-          : "Your selection (with auto-upgrades) is using";
-
-      ecHint.textContent =
-        `${mode}: ${ecLabel}. QR size: ${size}px` + (len ? ` (input length: ${len})` : "") + `.`;
+    // Convert export pixels to recommended canvas size based on print width + DPI
+    function exportPxFromPrint(inches, dpi) {
+      // Clamp to avoid absurd sizes; still allows high-res exports.
+      const px = Math.round(inches * dpi);
+      return Math.max(256, Math.min(px, 4096));
     }
 
     function setDownloadButtonText() {
-      const type = fileTypeSelect.value;
+      const type = fileTypeEl.value;
       const ext = type === "jpeg" ? "JPG" : type.toUpperCase();
       dlBtn.textContent = `Download ${ext}`;
     }
 
-    function generate() {
-      const value = normalizeValue(input.value);
-
-      qrBox.innerHTML = "";
-      dlBtn.disabled = true;
-
-      if (!value) {
-        updateHint();
-        return;
-      }
-
-      const len = value.length;
-      const size = sizeForLength(len);
-      const ecKey = effectiveEC(ecSelect.value, len);
-
-      new QRCode(qrBox, {
-        text: value,
-        width: size,
-        height: size,
-        correctLevel: EC[ecKey]
-      });
-
-      dlBtn.disabled = false;
-      setDownloadButtonText();
-      updateHint();
+    function cornerRadiusPx() {
+      if (frameCornersEl.value === "square") return 0;
+      return Number(cornerRadiusEl.value) || 0;
     }
 
-    function canvasToDataUrl(canvas, type) {
-      if (type === "png") {
-        return canvas.toDataURL("image/png");
+    // Draw a rounded rectangle path
+    function roundedRectPath(ctx, x, y, w, h, r) {
+      const rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+      ctx.beginPath();
+      if (rr === 0) {
+        ctx.rect(x, y, w, h);
+        return;
+      }
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    // --- QR creation + custom render
+    let lastCanvas = null;
+    let lastMeta = null; // helpful for filename/hints
+
+    function buildQrMatrix(text, ecKey) {
+      // qrcode-generator API
+      // typeNumber 0 => auto
+      const qr = qrcode(0, ecKey); // 'M'|'Q'|'H' (also supports 'L')
+      qr.addData(text, "Byte");
+      qr.make();
+      return qr;
+    }
+
+    function renderQrToCanvas(qr, opts) {
+      const moduleCount = qr.getModuleCount();
+      const quiet = opts.quietModules; // modules
+      const totalModules = moduleCount + (quiet * 2);
+
+      // Choose pixels per module based on target export size
+      // Ensure integer pixels for crisp edges.
+      const ppm = Math.max(1, Math.floor(opts.targetPx / totalModules));
+      const sizePx = totalModules * ppm;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = sizePx;
+      canvas.height = sizePx;
+      const ctx = canvas.getContext("2d");
+
+      // Background/frame (white) with corner radius
+      ctx.clearRect(0, 0, sizePx, sizePx);
+      ctx.fillStyle = "#ffffff";
+
+      const r = Math.min(opts.cornerRadiusPx, Math.floor(sizePx * 0.12));
+      roundedRectPath(ctx, 0, 0, sizePx, sizePx, r);
+      ctx.fill();
+
+      // Draw modules (black)
+      ctx.fillStyle = "#000000";
+
+      for (let rIdx = 0; rIdx < moduleCount; rIdx++) {
+        for (let cIdx = 0; cIdx < moduleCount; cIdx++) {
+          if (!qr.isDark(rIdx, cIdx)) continue;
+
+          const x = (cIdx + quiet) * ppm;
+          const y = (rIdx + quiet) * ppm;
+
+          // Crisp square modules
+          ctx.fillRect(x, y, ppm, ppm);
+        }
       }
 
-      // JPEG/WEBP: draw on white background
+      return { canvas, ppm, sizePx, totalModules, moduleCount, quiet };
+    }
+
+    // Export helpers
+    function canvasToDataUrl(canvas, type) {
+      if (type === "png") return canvas.toDataURL("image/png");
+
+      // JPEG/WEBP need a white background (we already have one, but keep this safe)
       const bg = document.createElement("canvas");
       bg.width = canvas.width;
       bg.height = canvas.height;
-
       const ctx = bg.getContext("2d");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, bg.width, bg.height);
@@ -291,52 +419,217 @@
 
       if (type === "jpeg") return bg.toDataURL("image/jpeg", 0.92);
       if (type === "webp") return bg.toDataURL("image/webp", 0.92);
-
       return canvas.toDataURL("image/png");
     }
 
-    function downloadQr() {
-      const type = fileTypeSelect.value;
-      const canvas = qrBox.querySelector("canvas");
-      const img = qrBox.querySelector("img");
+    // Compute print guidance + auto-upgrade EC if needed
+    function computeAndApplyPrintGuidance(qrMaybe) {
+      const unit = printUnitEl.value;
+      const inches = inchesFrom(printSizeEl.value, unit);
+      const dpi = Number(dpiEl.value) || 300;
 
-      if (!canvas && !img) return;
+      // If we don't have a QR yet, we can still show generic guidance
+      if (!inches) {
+        hintEl.classList.add("warn");
+        hintEl.innerHTML = `Enter a valid print width to get scan/robustness guidance.`;
+        return { inches: null, dpi, recommendedEC: "Q", moduleMM: null, targetPx: 512, upgraded: false };
+      }
 
-      let dataUrl;
-      if (canvas) {
-        dataUrl = canvasToDataUrl(canvas, type);
+      // If we have a QR matrix, use real module count for guidance
+      let moduleMM = null;
+      let recommendedEC = "Q";
+      let moduleCount = null;
+      let quiet = Number(quietZoneEl.value) || 4;
+
+      if (qrMaybe) {
+        moduleCount = qrMaybe.getModuleCount();
+        const totalModules = moduleCount + (quiet * 2);
+        const moduleInches = inches / totalModules;
+        moduleMM = mmFromInches(moduleInches);
+        recommendedEC = recommendedECFromModuleMM(moduleMM);
       } else {
-        // If qrcodejs rendered an <img>, it will usually be PNG data URL already.
-        // We'll still download it with the chosen extension.
-        dataUrl = img.src;
+        // fallback when no matrix yet
+        // Use your previous “long url” heuristic in spirit:
+        recommendedEC = "Q";
+      }
+
+      // Auto-upgrade if user's selection is weaker than recommended.
+      // (If user chose Auto, we don't force the dropdown; we apply the effective EC at generate time.)
+      const userChoice = ecSelect.value;
+      let upgraded = false;
+
+      if (userChoice !== "auto") {
+        const effective = maxEC(userChoice, recommendedEC);
+        if (effective !== userChoice) {
+          ecSelect.value = effective;
+          upgraded = true;
+        }
+      }
+
+      const targetPx = exportPxFromPrint(inches, dpi);
+
+      // Build hint text
+      const sizeLabel = unit === "cm" ? `${Number(printSizeEl.value).toFixed(1)} cm` : `${Number(printSizeEl.value).toFixed(1)} in`;
+      const moduleLine = moduleMM != null
+        ? `<div><strong>Module size:</strong> ~${moduleMM.toFixed(2)} mm per module (bigger is easier to scan)</div>`
+        : `<div><strong>Module size:</strong> generate a QR to calculate precisely</div>`;
+
+      const recLine = `<div><strong>Recommended EC for this print size:</strong> ${recommendedEC}</div>`;
+      const pxLine = `<div><strong>Export size:</strong> ~${targetPx}px (based on ${dpi} DPI and ${sizeLabel} width)</div>`;
+      const quietLine = `<div><strong>Quiet zone:</strong> ${quiet} modules</div>`;
+
+      const upgradePill = upgraded ? `<span class="pill">Upgraded EC</span>` : "";
+      const warnClass = (moduleMM != null && moduleMM < 0.6) ? "warn" : "";
+
+      hintEl.classList.remove("warn");
+      if (warnClass) hintEl.classList.add("warn");
+
+      hintEl.innerHTML =
+        `<div><strong>Print guidance</strong> ${upgradePill}</div>` +
+        `${moduleLine}${recLine}${pxLine}${quietLine}` +
+        (moduleMM != null && moduleMM < 0.6
+          ? `<div style="margin-top:6px;"><strong>Warning:</strong> This is pretty dense for that print size. Consider a larger print width, higher quiet zone, or shorter URL.</div>`
+          : ``);
+
+      return { inches, dpi, recommendedEC, moduleMM, targetPx, upgraded };
+    }
+
+    function effectiveECForGenerate(recommendedEC) {
+      const userChoice = ecSelect.value;
+      if (userChoice === "auto") return recommendedEC; // auto picks recommended from print size
+      return userChoice; // already auto-upgraded if needed by print changes
+    }
+
+    function generate() {
+      const text = normalizeValue(input.value);
+      qrBox.innerHTML = "";
+      dlBtn.disabled = true;
+      lastCanvas = null;
+      lastMeta = null;
+
+      if (!text) {
+        computeAndApplyPrintGuidance(null);
+        return;
+      }
+
+      // We'll build a provisional QR to compute exact module guidance using a baseline EC,
+      // then pick effective EC and rebuild if needed (so guidance and output match).
+      const quiet = Number(quietZoneEl.value) || 4;
+
+      // Start by using Q as a reasonable baseline for matrix sizing; then adjust.
+      let qr = buildQrMatrix(text, "Q");
+      const guidance = computeAndApplyPrintGuidance(qr);
+
+      const ecKey = effectiveECForGenerate(guidance.recommendedEC);
+      if (ecKey !== "Q") {
+        qr = buildQrMatrix(text, ecKey);
+        // Recompute guidance using actual matrix for chosen EC (module count can change with EC)
+        // and re-apply. This keeps everything consistent.
+        Object.assign(guidance, computeAndApplyPrintGuidance(qr));
+      }
+
+      const radius = cornerRadiusPx();
+      cornerRadiusNote.textContent = `${radius} px`;
+
+      const render = renderQrToCanvas(qr, {
+        targetPx: guidance.targetPx,
+        quietModules: quiet,
+        cornerRadiusPx: radius
+      });
+
+      // Show on page
+      qrBox.appendChild(render.canvas);
+
+      lastCanvas = render.canvas;
+      lastMeta = {
+        ec: ecKey,
+        printInches: guidance.inches,
+        dpi: guidance.dpi,
+        exportPx: render.sizePx,
+        moduleCount: render.moduleCount,
+        quietModules: render.quiet
+      };
+
+      dlBtn.disabled = false;
+      setDownloadButtonText();
+    }
+
+    function downloadQr() {
+      if (!lastCanvas) return;
+
+      const type = fileTypeEl.value;
+      const dataUrl = canvasToDataUrl(lastCanvas, type);
+
+      const ext = type === "jpeg" ? "jpg" : type;
+
+      // Filename includes print size & EC to help later
+      let suffix = "";
+      if (lastMeta?.printInches && lastMeta?.dpi) {
+        const inches = lastMeta.printInches;
+        const approx = inches >= 1 ? `${inches.toFixed(2)}in` : `${(inches*25.4).toFixed(0)}mm`;
+        suffix = `_${approx}_${lastMeta.dpi}dpi_EC-${lastMeta.ec}`;
       }
 
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `qr.${type === "jpeg" ? "jpg" : type}`;
+      a.download = `qr${suffix}.${ext}`;
       a.click();
     }
 
-    // Events
+    // --- Wiring
+    function refreshCornerUI() {
+      const isRounded = frameCornersEl.value === "rounded";
+      cornerRadiusEl.disabled = !isRounded;
+      cornerRadiusNote.style.opacity = isRounded ? "1" : "0.6";
+      cornerRadiusNote.textContent = `${cornerRadiusPx()} px`;
+    }
+
+    // On print size changes, recompute guidance and auto-upgrade EC if needed; regenerate if a QR exists
+    function onPrintRelatedChange() {
+      // If we already have a QR, rebuild it so the exported pixel size and EC match the new print settings
+      if (lastCanvas) {
+        generate();
+      } else {
+        computeAndApplyPrintGuidance(null);
+      }
+    }
+
     genBtn.addEventListener("click", generate);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
-    input.addEventListener("input", updateHint);
-
-    ecSelect.addEventListener("change", () => {
-      updateHint();
-      // re-generate live if a QR already exists
-      if (!dlBtn.disabled) generate();
-    });
-
-    fileTypeSelect.addEventListener("change", () => {
-      setDownloadButtonText();
-    });
-
     dlBtn.addEventListener("click", downloadQr);
 
-    // init
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
+    input.addEventListener("input", () => {
+      // Update guidance live (without rebuilding) if no QR yet
+      if (!lastCanvas) computeAndApplyPrintGuidance(null);
+    });
+
+    printSizeEl.addEventListener("input", onPrintRelatedChange);
+    printUnitEl.addEventListener("change", onPrintRelatedChange);
+    dpiEl.addEventListener("change", onPrintRelatedChange);
+    quietZoneEl.addEventListener("change", onPrintRelatedChange);
+
+    ecSelect.addEventListener("change", () => {
+      // If user manually changes EC, regenerate if QR exists
+      if (lastCanvas) generate();
+      else computeAndApplyPrintGuidance(null);
+    });
+
+    frameCornersEl.addEventListener("change", () => {
+      refreshCornerUI();
+      if (lastCanvas) generate();
+    });
+
+    cornerRadiusEl.addEventListener("input", () => {
+      cornerRadiusNote.textContent = `${cornerRadiusPx()} px`;
+      if (lastCanvas) generate();
+    });
+
+    fileTypeEl.addEventListener("change", setDownloadButtonText);
+
+    // Init
+    refreshCornerUI();
     setDownloadButtonText();
-    updateHint();
+    computeAndApplyPrintGuidance(null);
   </script>
 </body>
 </html>
