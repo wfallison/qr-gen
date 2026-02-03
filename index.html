@@ -7,8 +7,7 @@
 
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #0b0f17;
       color: #fff;
       min-height: 100vh;
@@ -17,7 +16,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .card {
       background: #121826;
       padding: 24px;
@@ -26,12 +24,7 @@
       max-width: 420px;
       box-shadow: 0 10px 30px rgba(0,0,0,.4);
     }
-
-    h1 {
-      margin-top: 0;
-      font-size: 22px;
-    }
-
+    h1 { margin-top: 0; font-size: 22px; }
     input {
       width: 100%;
       padding: 12px;
@@ -40,7 +33,6 @@
       margin-top: 12px;
       font-size: 16px;
     }
-
     button {
       width: 100%;
       margin-top: 12px;
@@ -50,67 +42,67 @@
       font-size: 16px;
       cursor: pointer;
     }
-
-    button.primary {
-      background: #6366f1;
-      color: white;
-    }
-
-    button.secondary {
-      background: #1f2937;
-      color: white;
-    }
-
-    #qr {
-      margin-top: 16px;
-      display: flex;
-      justify-content: center;
-    }
+    button.primary { background: #6366f1; color: white; }
+    button.secondary { background: #1f2937; color: white; }
+    #qr { margin-top: 16px; display: flex; justify-content: center; }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>QR Code Generator</h1>
     <input id="text" placeholder="Enter a URL or text" />
-    <button class="primary" onclick="generate()">Generate</button>
+    <button class="primary" id="generate">Generate</button>
     <button class="secondary" id="download" disabled>Download PNG</button>
     <div id="qr"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <!-- ✅ correct library for the QRCode global -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
   <script>
-    let lastCanvas = null;
+    const input = document.getElementById("text");
+    const qrBox = document.getElementById("qr");
+    const genBtn = document.getElementById("generate");
+    const dlBtn = document.getElementById("download");
 
     function generate() {
-      const value = document.getElementById('text').value.trim();
-      const qr = document.getElementById('qr');
-      const dl = document.getElementById('download');
-
-      qr.innerHTML = '';
-      lastCanvas = null;
-      dl.disabled = true;
+      const value = input.value.trim();
+      qrBox.innerHTML = "";
+      dlBtn.disabled = true;
 
       if (!value) return;
 
-      const canvas = document.createElement('canvas');
-      QRCode.toCanvas(canvas, value, {
+      // qrcodejs API: new QRCode(element, options)
+      new QRCode(qrBox, {
+        text: value,
         width: 256,
-        margin: 2,
-        errorCorrectionLevel: 'M'
+        height: 256,
+        correctLevel: QRCode.CorrectLevel.M
       });
 
-      qr.appendChild(canvas);
-      lastCanvas = canvas;
-      dl.disabled = false;
+      dlBtn.disabled = false;
     }
 
-    document.getElementById('download').onclick = () => {
-      if (!lastCanvas) return;
-      const a = document.createElement('a');
-      a.href = lastCanvas.toDataURL('image/png');
-      a.download = 'qr.png';
+    function downloadPng() {
+      // qrcodejs may render a canvas OR an img depending on the environment
+      const canvas = qrBox.querySelector("canvas");
+      const img = qrBox.querySelector("img");
+
+      let dataUrl = null;
+      if (canvas) dataUrl = canvas.toDataURL("image/png");
+      else if (img) dataUrl = img.src;
+
+      if (!dataUrl) return;
+
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "qr.png";
       a.click();
-    };
+    }
+
+    genBtn.addEventListener("click", generate);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
+    dlBtn.addEventListener("click", downloadPng);
   </script>
 </body>
 </html>
