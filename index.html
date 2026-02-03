@@ -35,12 +35,6 @@
       background: #fff;
       color: #000;
     }
-    .row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
     label {
       font-size: 12px;
       color: rgba(255,255,255,.7);
@@ -92,69 +86,189 @@
     </select>
 
     <button class="primary" id="generate">Generate</button>
-    <button class="secondary" id="download" disabled>Download PNG</button>
+    <button class="secondary" id="download" disabled>Download</button>
 
     <div id="qr"></div>
   </div>
 
-  <!-- QRCode global -->
+  <!-- QRCode global (qrcodejs) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-<script>
-  const fileTypeSelect = document.getElementById("fileType");
+  <script>
+    // DOM refs
+    const input = document.getElementById("text");
+    const qrBox = document.getElementById("qr");
+    const genBtn = document.getElementById("generate");
+    const dlBtn = document.getElementById("download");
+    const ecSelect = document.getElementById("ecLevel");
+    const fileTypeSelect = document.getElementById("fileType");
+    const ecHint = document.getElementById("ecHint");
 
-  function canvasToDataUrl(canvas, type) {
-    if (type === "png") {
+    // qrcodejs correction levels
+    const EC = {
+      M: QRCode.CorrectLevel.M,
+      Q: QRCode.CorrectLevel.Q,
+      H: QRCode.CorrectLevel.H
+    };
+
+    // Strength ordering for "auto-upgrade"
+    const EC_ORDER = ["M", "Q", "H"];
+    function maxEC(a, b) {
+      return EC_ORDER.indexOf(a) >= EC_ORDER.indexOf(b) ? a : b;
+    }
+
+    function looksLikeBareDomain(s) {
+      return (
+        /^[^\s]+$/.test(s) &&
+        s.includes(".") &&
+        !/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s)
+      );
+    }
+
+    function normalizeValue(raw) {
+      let v = String(raw ?? "").trim();
+      if (looksLikeBareDomain(v)) v = "https://" + v;
+      v = v.replace(/\r\n/g, "\n");
+      return v;
+    }
+
+    // Defaults: reliable across URLs & longer links
+    function autoECForLength(len) {
+      if (len > 200) return "H";
+      if (len > 100) return "Q";
+      return "M";
+    }
+
+    function sizeForLength(len) {
+      if (len > 200) return 512;
+      if (len > 100) return 384;
+      return 256;
+    }
+
+    function effectiveEC(userChoice, len) {
+      const auto = autoECForLength(len);
+      if (userChoice === "auto") return auto;
+      // User sets minimum; we may upgrade for long strings
+      return maxEC(userChoice, auto);
+    }
+
+    function updateHint() {
+      const value = normalizeValue(input.value);
+      const len = value.length;
+      const choice = ecSelect.value;
+      const ecKey = effectiveEC(choice, len);
+      const size = sizeForLength(len);
+
+      const ecLabel =
+        ecKey === "M" ? "M (balanced)" :
+        ecKey === "Q" ? "Q (more robust)" :
+        "H (most robust)";
+
+      const mode =
+        choice === "auto"
+          ? "Auto is selecting"
+          : "Your selection (with auto-upgrades) is using";
+
+      ecHint.textContent =
+        `${mode}: ${ecLabel}. QR size: ${size}px` + (len ? ` (input length: ${len})` : "") + `.`;
+    }
+
+    function setDownloadButtonText() {
+      const type = fileTypeSelect.value;
+      const ext = type === "jpeg" ? "JPG" : type.toUpperCase();
+      dlBtn.textContent = `Download ${ext}`;
+    }
+
+    function generate() {
+      const value = normalizeValue(input.value);
+
+      qrBox.innerHTML = "";
+      dlBtn.disabled = true;
+
+      if (!value) {
+        updateHint();
+        return;
+      }
+
+      const len = value.length;
+      const size = sizeForLength(len);
+      const ecKey = effectiveEC(ecSelect.value, len);
+
+      new QRCode(qrBox, {
+        text: value,
+        width: size,
+        height: size,
+        correctLevel: EC[ecKey]
+      });
+
+      dlBtn.disabled = false;
+      setDownloadButtonText();
+      updateHint();
+    }
+
+    function canvasToDataUrl(canvas, type) {
+      if (type === "png") {
+        return canvas.toDataURL("image/png");
+      }
+
+      // JPEG/WEBP: draw on white background
+      const bg = document.createElement("canvas");
+      bg.width = canvas.width;
+      bg.height = canvas.height;
+
+      const ctx = bg.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, bg.width, bg.height);
+      ctx.drawImage(canvas, 0, 0);
+
+      if (type === "jpeg") return bg.toDataURL("image/jpeg", 0.92);
+      if (type === "webp") return bg.toDataURL("image/webp", 0.92);
+
       return canvas.toDataURL("image/png");
     }
 
-    // For JPEG / WEBP, draw onto a white background first
-    const bg = document.createElement("canvas");
-    bg.width = canvas.width;
-    bg.height = canvas.height;
+    function downloadQr() {
+      const type = fileTypeSelect.value;
+      const canvas = qrBox.querySelector("canvas");
+      const img = qrBox.querySelector("img");
 
-    const ctx = bg.getContext("2d");
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, bg.width, bg.height);
-    ctx.drawImage(canvas, 0, 0);
+      if (!canvas && !img) return;
 
-    if (type === "jpeg") {
-      return bg.toDataURL("image/jpeg", 0.92);
+      let dataUrl;
+      if (canvas) {
+        dataUrl = canvasToDataUrl(canvas, type);
+      } else {
+        // If qrcodejs rendered an <img>, it will usually be PNG data URL already.
+        // We'll still download it with the chosen extension.
+        dataUrl = img.src;
+      }
+
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `qr.${type === "jpeg" ? "jpg" : type}`;
+      a.click();
     }
 
-    if (type === "webp") {
-      return bg.toDataURL("image/webp", 0.92);
-    }
+    // Events
+    genBtn.addEventListener("click", generate);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
+    input.addEventListener("input", updateHint);
 
-    // fallback
-    return canvas.toDataURL("image/png");
-  }
+    ecSelect.addEventListener("change", () => {
+      updateHint();
+      // Optional: re-generate live if a QR already exists
+      if (!dlBtn.disabled) generate();
+    });
 
-  function downloadPng() {
-    const canvas = qrBox.querySelector("canvas");
-    const img = qrBox.querySelector("img");
+    fileTypeSelect.addEventListener("change", () => {
+      setDownloadButtonText();
+    });
 
-    if (!canvas && !img) return;
+    dlBtn.addEventListener("click", downloadQr);
 
-    const type = fileTypeSelect.value;
-    let dataUrl;
-
-    if (canvas) {
-      dataUrl = canvasToDataUrl(canvas, type);
-    } else {
-      // img fallback (rare, but supported)
-      dataUrl = img.src;
-    }
-
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `qr.${type === "jpeg" ? "jpg" : type}`;
-    a.click();
-  }
-
-  dlBtn.removeEventListener("click", downloadPng);
-  dlBtn.addEventListener("click", downloadPng);
-</script>
-
+    // init
+    setDownloadButtonText();
+    updateHint();
+  </script>
 </body>
 </html>
