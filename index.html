@@ -15,7 +15,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
     }
+
     .card {
       background: #121826;
       padding: 24px;
@@ -23,42 +26,100 @@
       width: 100%;
       max-width: 420px;
       box-shadow: 0 10px 30px rgba(0,0,0,.4);
+      box-sizing: border-box;
     }
-    h1 { margin-top: 0; font-size: 22px; }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 12px;
-      font-size: 16px;
-      background: #fff;
-      color: #000;
+
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 22px;
+      line-height: 1.2;
     }
+
+    /* Consistent vertical rhythm */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
     label {
       font-size: 12px;
+      font-weight: 500;
       color: rgba(255,255,255,.7);
-      display: block;
-      margin-top: 12px;
-      margin-bottom: -6px;
+      margin: 0;
     }
-    button {
+
+    input,
+    select {
       width: 100%;
-      margin-top: 12px;
-      padding: 12px;
+      height: 44px;
+      padding: 10px 12px;
       border-radius: 8px;
       border: none;
-      font-size: 16px;
-      cursor: pointer;
+      font-size: 15px;
+      background: #fff;
+      color: #000;
+      box-sizing: border-box;
     }
-    button.primary { background: #6366f1; color: white; }
-    button.secondary { background: #1f2937; color: white; }
-    #qr { margin-top: 16px; display: flex; justify-content: center; }
+
+    /* Hint spacing */
     .hint {
-      margin-top: 10px;
       font-size: 12px;
       color: rgba(255,255,255,.65);
       line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    /* Buttons grouped + aligned */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      width: 100%;
+      height: 44px;
+      padding: 0 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    button.primary {
+      background: #6366f1;
+      color: #fff;
+    }
+
+    button.secondary {
+      background: #1f2937;
+      color: #fff;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #qr {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Ensure the QR canvas/image never overflows */
+    #qr canvas,
+    #qr img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+      box-sizing: border-box;
     }
   </style>
 </head>
@@ -66,27 +127,34 @@
   <div class="card">
     <h1>QR Code Generator</h1>
 
-    <input id="text" placeholder="Enter a URL or text" />
+    <div class="field">
+      <input id="text" placeholder="Enter a URL or text" />
+    </div>
 
-    <label for="ecLevel">Error correction</label>
-    <select id="ecLevel">
-      <option value="auto" selected>Auto (recommended)</option>
-      <option value="M">M (balanced)</option>
-      <option value="Q">Q (more robust)</option>
-      <option value="H">H (most robust)</option>
-    </select>
+    <div class="field">
+      <label for="ecLevel">Error correction</label>
+      <select id="ecLevel">
+        <option value="auto" selected>Auto (recommended)</option>
+        <option value="M">M (balanced)</option>
+        <option value="Q">Q (more robust)</option>
+        <option value="H">H (most robust)</option>
+      </select>
+      <div class="hint" id="ecHint"></div>
+    </div>
 
-    <div class="hint" id="ecHint"></div>
+    <div class="field">
+      <label for="fileType">Download format</label>
+      <select id="fileType">
+        <option value="png" selected>PNG (recommended)</option>
+        <option value="jpeg">JPEG</option>
+        <option value="webp">WEBP</option>
+      </select>
+    </div>
 
-    <label for="fileType">Download format</label>
-    <select id="fileType">
-      <option value="png" selected>PNG (recommended)</option>
-      <option value="jpeg">JPEG</option>
-      <option value="webp">WEBP</option>
-    </select>
-
-    <button class="primary" id="generate">Generate</button>
-    <button class="secondary" id="download" disabled>Download</button>
+    <div class="actions">
+      <button class="primary" id="generate">Generate</button>
+      <button class="secondary" id="download" disabled>Download</button>
+    </div>
 
     <div id="qr"></div>
   </div>
@@ -256,7 +324,7 @@
 
     ecSelect.addEventListener("change", () => {
       updateHint();
-      // Optional: re-generate live if a QR already exists
+      // re-generate live if a QR already exists
       if (!dlBtn.disabled) generate();
     });
 
