@@ -93,139 +93,61 @@
   <!-- QRCode global -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-  <script>
-    const input = document.getElementById("text");
-    const qrBox = document.getElementById("qr");
-    const genBtn = document.getElementById("generate");
-    const dlBtn = document.getElementById("download");
-    const ecSelect = document.getElementById("ecLevel");
-    const ecHint = document.getElementById("ecHint");
+<script>
+  const fileTypeSelect = document.getElementById("fileType");
 
-    // Maps for qrcodejs
-    const EC = {
-      M: QRCode.CorrectLevel.M,
-      Q: QRCode.CorrectLevel.Q,
-      H: QRCode.CorrectLevel.H
-    };
-
-    // Strength ordering for "auto-upgrade"
-    const EC_ORDER = ["M", "Q", "H"];
-    function maxEC(a, b) {
-      // returns the stronger of two levels
-      return EC_ORDER.indexOf(a) >= EC_ORDER.indexOf(b) ? a : b;
+  function canvasToDataUrl(canvas, type) {
+    if (type === "png") {
+      return canvas.toDataURL("image/png");
     }
 
-    function looksLikeBareDomain(s) {
-      return (
-        /^[^\s]+$/.test(s) &&
-        s.includes(".") &&
-        !/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s)
-      );
+    // For JPEG / WEBP, draw onto a white background first
+    const bg = document.createElement("canvas");
+    bg.width = canvas.width;
+    bg.height = canvas.height;
+
+    const ctx = bg.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, bg.width, bg.height);
+    ctx.drawImage(canvas, 0, 0);
+
+    if (type === "jpeg") {
+      return bg.toDataURL("image/jpeg", 0.92);
     }
 
-    function normalizeValue(raw) {
-      let v = String(raw ?? "").trim();
-      if (looksLikeBareDomain(v)) v = "https://" + v;
-      v = v.replace(/\r\n/g, "\n");
-      return v;
+    if (type === "webp") {
+      return bg.toDataURL("image/webp", 0.92);
     }
 
-    // Your current "reliable across URLs + longer links" defaults:
-    // - baseline M
-    // - upgrade to Q for >100 chars
-    // - upgrade to H for >200 chars
-    // - size increases similarly
-    function autoECForLength(len) {
-      if (len > 200) return "H";
-      if (len > 100) return "Q";
-      return "M";
+    // fallback
+    return canvas.toDataURL("image/png");
+  }
+
+  function downloadPng() {
+    const canvas = qrBox.querySelector("canvas");
+    const img = qrBox.querySelector("img");
+
+    if (!canvas && !img) return;
+
+    const type = fileTypeSelect.value;
+    let dataUrl;
+
+    if (canvas) {
+      dataUrl = canvasToDataUrl(canvas, type);
+    } else {
+      // img fallback (rare, but supported)
+      dataUrl = img.src;
     }
 
-    function sizeForLength(len) {
-      if (len > 200) return 512;
-      if (len > 100) return 384;
-      return 256;
-    }
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `qr.${type === "jpeg" ? "jpg" : type}`;
+    a.click();
+  }
 
-    function effectiveEC(userChoice, len) {
-      const auto = autoECForLength(len);
+  dlBtn.removeEventListener("click", downloadPng);
+  dlBtn.addEventListener("click", downloadPng);
+</script>
 
-      // If user chose Auto, use auto.
-      if (userChoice === "auto") return auto;
-
-      // User chose M/Q/H: keep their minimum, but still auto-upgrade for long links.
-      // (Never downgrade; only increase robustness when needed.)
-      return maxEC(userChoice, auto);
-    }
-
-    function updateHint() {
-      const len = normalizeValue(input.value).length;
-      const choice = ecSelect.value;
-      const ec = effectiveEC(choice, len);
-      const size = sizeForLength(len);
-
-      const label =
-        ec === "M" ? "M (balanced)" :
-        ec === "Q" ? "Q (more robust)" :
-        "H (most robust)";
-
-      const mode =
-        choice === "auto"
-          ? "Auto is selecting"
-          : "Your selection (with auto-upgrades) is using";
-
-      ecHint.textContent = `${mode}: ${label}. QR size: ${size}px${len ? ` (input length: ${len})` : ""}.`;
-    }
-
-    function generate() {
-      const value = normalizeValue(input.value);
-      qrBox.innerHTML = "";
-      dlBtn.disabled = true;
-
-      if (!value) {
-        updateHint();
-        return;
-      }
-
-      const len = value.length;
-      const size = sizeForLength(len);
-      const ecKey = effectiveEC(ecSelect.value, len);
-
-      new QRCode(qrBox, {
-        text: value,
-        width: size,
-        height: size,
-        correctLevel: EC[ecKey]
-      });
-
-      dlBtn.disabled = false;
-      updateHint();
-    }
-
-    function downloadPng() {
-      const canvas = qrBox.querySelector("canvas");
-      const img = qrBox.querySelector("img");
-
-      let dataUrl = null;
-      if (canvas) dataUrl = canvas.toDataURL("image/png");
-      else if (img) dataUrl = img.src;
-
-      if (!dataUrl) return;
-
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "qr.png";
-      a.click();
-    }
-
-    genBtn.addEventListener("click", generate);
-    input.addEventListener("input", updateHint);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
-    ecSelect.addEventListener("change", updateHint);
-    dlBtn.addEventListener("click", downloadPng);
-
-    // initial hint
-    updateHint();
-  </script>
 </body>
 </html>
