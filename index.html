@@ -24,7 +24,7 @@
       padding: 24px;
       border-radius: 12px;
       width: 100%;
-      max-width: 460px;
+      max-width: 520px;
       box-shadow: 0 10px 30px rgba(0,0,0,.4);
       box-sizing: border-box;
     }
@@ -35,13 +35,6 @@
       line-height: 1.2;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
     .field {
       display: flex;
       flex-direction: column;
@@ -49,8 +42,11 @@
       margin-top: 14px;
     }
 
-    .field.compact {
-      margin-top: 0;
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
     }
 
     label {
@@ -72,16 +68,21 @@
       box-sizing: border-box;
     }
 
-    input[type="range"] {
-      height: 44px;
-      padding: 0;
+    input[type="range"] { padding: 0; }
+    input[type="file"] { padding: 9px 12px; }
+
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
     }
 
     .hint {
       font-size: 12px;
       color: rgba(255,255,255,.70);
       line-height: 1.45;
-      margin-top: 8px;
+      margin-top: 12px;
       padding: 10px 12px;
       border-radius: 10px;
       background: rgba(255,255,255,.06);
@@ -89,6 +90,19 @@
     }
 
     .hint strong { color: rgba(255,255,255,.92); }
+    .hint.warn {
+      background: rgba(245, 158, 11, .12);
+      border: 1px solid rgba(245, 158, 11, .35);
+    }
+    .hint.bad {
+      background: rgba(239, 68, 68, .12);
+      border: 1px solid rgba(239, 68, 68, .35);
+    }
+
+    .small {
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+    }
 
     .actions {
       display: flex;
@@ -135,31 +149,39 @@
       display: block;
     }
 
-    .small {
-      font-size: 12px;
-      color: rgba(255,255,255,.65);
-    }
-
     .inline-note {
       margin-top: 6px;
       font-size: 12px;
       color: rgba(255,255,255,.65);
     }
 
-    .pill {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      margin-left: 6px;
-      background: rgba(99,102,241,.15);
-      border: 1px solid rgba(99,102,241,.35);
-      color: rgba(255,255,255,.9);
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      user-select: none;
+    }
+    .toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: #6366f1;
     }
 
-    .warn {
-      background: rgba(245, 158, 11, .12);
-      border: 1px solid rgba(245, 158, 11, .35);
+    .preview {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .preview img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
     }
   </style>
 </head>
@@ -174,12 +196,12 @@
 
     <!-- Print + robustness controls -->
     <div class="grid">
-      <div class="field compact">
+      <div class="field" style="margin-top:0;">
         <label for="printSize">Print width</label>
         <input id="printSize" type="number" min="0.5" step="0.1" value="2.0" />
       </div>
 
-      <div class="field compact">
+      <div class="field" style="margin-top:0;">
         <label for="printUnit">Units</label>
         <select id="printUnit">
           <option value="in" selected>inches</option>
@@ -187,7 +209,7 @@
         </select>
       </div>
 
-      <div class="field compact">
+      <div class="field" style="margin-top:0;">
         <label for="dpi">DPI (export)</label>
         <select id="dpi">
           <option value="150">150</option>
@@ -196,7 +218,7 @@
         </select>
       </div>
 
-      <div class="field compact">
+      <div class="field" style="margin-top:0;">
         <label for="ecLevel">Error correction</label>
         <select id="ecLevel">
           <option value="auto" selected>Auto (recommended)</option>
@@ -208,8 +230,8 @@
     </div>
 
     <!-- Style controls -->
-    <div class="grid" style="margin-top: 14px;">
-      <div class="field compact">
+    <div class="grid">
+      <div class="field" style="margin-top:0;">
         <label for="frameCorners">Frame corners</label>
         <select id="frameCorners">
           <option value="square" selected>90° (square)</option>
@@ -217,22 +239,13 @@
         </select>
       </div>
 
-      <div class="field compact">
+      <div class="field" style="margin-top:0;">
         <label for="cornerRadius">Corner radius</label>
-        <input id="cornerRadius" type="range" min="0" max="36" step="1" value="12" />
+        <input id="cornerRadius" type="range" min="0" max="48" step="1" value="12" />
         <div class="inline-note" id="cornerRadiusNote">12 px</div>
       </div>
 
-      <div class="field compact">
-        <label for="fileType">Download format</label>
-        <select id="fileType">
-          <option value="png" selected>PNG (recommended)</option>
-          <option value="jpeg">JPEG</option>
-          <option value="webp">WEBP</option>
-        </select>
-      </div>
-
-      <div class="field compact">
+      <div class="field" style="margin-top:0;">
         <label for="quietZone">Quiet zone</label>
         <select id="quietZone">
           <option value="4" selected>4 modules (standard)</option>
@@ -240,6 +253,63 @@
           <option value="8">8 modules (very safe)</option>
         </select>
       </div>
+
+      <div class="field" style="margin-top:0;">
+        <label for="fileType">Download format</label>
+        <select id="fileType">
+          <option value="png" selected>PNG (recommended)</option>
+          <option value="jpeg">JPEG</option>
+          <option value="webp">WEBP</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Color controls -->
+    <div class="grid">
+      <div class="field" style="margin-top:0;">
+        <label for="fgColor">QR color (foreground)</label>
+        <input id="fgColor" type="color" value="#000000" />
+      </div>
+
+      <div class="field" style="margin-top:0;">
+        <label for="bgColor">Background/frame color</label>
+        <input id="bgColor" type="color" value="#ffffff" />
+      </div>
+    </div>
+
+    <!-- Logo controls -->
+    <div class="field">
+      <label>Logo</label>
+      <div class="toggle">
+        <input id="logoEnabled" type="checkbox" />
+        <span>Enable logo (center)</span>
+      </div>
+      <input id="logoFile" type="file" accept="image/*" />
+      <div class="preview" id="logoPreviewRow" style="display:none;">
+        <img id="logoPreview" alt="Logo preview" />
+        <div class="small" id="logoInfo"></div>
+      </div>
+
+      <div class="row3">
+        <div class="field" style="margin-top:0;">
+          <label for="logoSize">Logo size</label>
+          <input id="logoSize" type="range" min="10" max="25" step="1" value="16" />
+          <div class="inline-note" id="logoSizeNote">16%</div>
+        </div>
+
+        <div class="field" style="margin-top:0;">
+          <label for="logoPadding">Logo padding</label>
+          <input id="logoPadding" type="range" min="0" max="20" step="1" value="8" />
+          <div class="inline-note" id="logoPaddingNote">8 px</div>
+        </div>
+
+        <div class="field" style="margin-top:0;">
+          <label for="logoPlate">Plate color</label>
+          <input id="logoPlate" type="color" value="#ffffff" />
+        </div>
+      </div>
+
+      <div class="small">Tip: Logos reduce scannability. We’ll automatically bump error correction when logo is enabled.</div>
     </div>
 
     <div class="hint" id="printHint"></div>
@@ -252,7 +322,7 @@
     <div id="qr"></div>
   </div>
 
-  <!-- QR matrix generator (lets us custom-render) -->
+  <!-- QR matrix generator (custom rendering) -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 
   <script>
@@ -262,13 +332,29 @@
     const printUnitEl = document.getElementById("printUnit");
     const dpiEl = document.getElementById("dpi");
     const ecSelect = document.getElementById("ecLevel");
+
     const frameCornersEl = document.getElementById("frameCorners");
     const cornerRadiusEl = document.getElementById("cornerRadius");
     const cornerRadiusNote = document.getElementById("cornerRadiusNote");
-    const fileTypeEl = document.getElementById("fileType");
-    const quietZoneEl = document.getElementById("quietZone");
-    const hintEl = document.getElementById("printHint");
 
+    const quietZoneEl = document.getElementById("quietZone");
+    const fileTypeEl = document.getElementById("fileType");
+
+    const fgColorEl = document.getElementById("fgColor");
+    const bgColorEl = document.getElementById("bgColor");
+
+    const logoEnabledEl = document.getElementById("logoEnabled");
+    const logoFileEl = document.getElementById("logoFile");
+    const logoPreviewRow = document.getElementById("logoPreviewRow");
+    const logoPreviewImg = document.getElementById("logoPreview");
+    const logoInfoEl = document.getElementById("logoInfo");
+    const logoSizeEl = document.getElementById("logoSize");
+    const logoSizeNote = document.getElementById("logoSizeNote");
+    const logoPaddingEl = document.getElementById("logoPadding");
+    const logoPaddingNote = document.getElementById("logoPaddingNote");
+    const logoPlateEl = document.getElementById("logoPlate");
+
+    const hintEl = document.getElementById("printHint");
     const genBtn = document.getElementById("generate");
     const dlBtn = document.getElementById("download");
     const qrBox = document.getElementById("qr");
@@ -299,28 +385,61 @@
       return inches * 25.4;
     }
 
-    // Strength ordering for auto-upgrade
+    // EC strength ordering for upgrades
     const EC_ORDER = ["M", "Q", "H"];
     function maxEC(a, b) {
       return EC_ORDER.indexOf(a) >= EC_ORDER.indexOf(b) ? a : b;
     }
 
-    // Recommend error correction based on *printed module size* (mm)
-    // Rule of thumb:
-    // - >= 1.0mm modules: M is usually fine
-    // - 0.7–1.0mm: Q recommended
-    // - < 0.7mm: H recommended
+    function exportPxFromPrint(inches, dpi) {
+      const px = Math.round(inches * dpi);
+      return Math.max(256, Math.min(px, 4096));
+    }
+
+    // --- Contrast utilities (WCAG contrast ratio)
+    function hexToRgb(hex) {
+      const h = String(hex || "").replace("#", "").trim();
+      if (h.length !== 6) return null;
+      const r = parseInt(h.slice(0, 2), 16);
+      const g = parseInt(h.slice(2, 4), 16);
+      const b = parseInt(h.slice(4, 6), 16);
+      if ([r,g,b].some(v => Number.isNaN(v))) return null;
+      return { r, g, b };
+    }
+
+    function srgbToLinear(c) {
+      const cs = c / 255;
+      return cs <= 0.04045 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+    }
+
+    function relativeLuminance(rgb) {
+      const R = srgbToLinear(rgb.r);
+      const G = srgbToLinear(rgb.g);
+      const B = srgbToLinear(rgb.b);
+      return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+    }
+
+    function contrastRatio(hex1, hex2) {
+      const a = hexToRgb(hex1);
+      const b = hexToRgb(hex2);
+      if (!a || !b) return null;
+      const L1 = relativeLuminance(a);
+      const L2 = relativeLuminance(b);
+      const lighter = Math.max(L1, L2);
+      const darker = Math.min(L1, L2);
+      return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    // Recommend EC based on printed module size (mm)
     function recommendedECFromModuleMM(moduleMM) {
       if (moduleMM >= 1.0) return "M";
       if (moduleMM >= 0.7) return "Q";
       return "H";
     }
 
-    // Convert export pixels to recommended canvas size based on print width + DPI
-    function exportPxFromPrint(inches, dpi) {
-      // Clamp to avoid absurd sizes; still allows high-res exports.
-      const px = Math.round(inches * dpi);
-      return Math.max(256, Math.min(px, 4096));
+    function cornerRadiusPx() {
+      if (frameCornersEl.value === "square") return 0;
+      return Number(cornerRadiusEl.value) || 0;
     }
 
     function setDownloadButtonText() {
@@ -329,12 +448,6 @@
       dlBtn.textContent = `Download ${ext}`;
     }
 
-    function cornerRadiusPx() {
-      if (frameCornersEl.value === "square") return 0;
-      return Number(cornerRadiusEl.value) || 0;
-    }
-
-    // Draw a rounded rectangle path
     function roundedRectPath(ctx, x, y, w, h, r) {
       const rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
       ctx.beginPath();
@@ -352,11 +465,13 @@
 
     // --- QR creation + custom render
     let lastCanvas = null;
-    let lastMeta = null; // helpful for filename/hints
+    let lastMeta = null;
+
+    // Logo state
+    let logoImg = null;
+    let logoLoaded = false;
 
     function buildQrMatrix(text, ecKey) {
-      // qrcode-generator API
-      // typeNumber 0 => auto
       const qr = qrcode(0, ecKey); // 'M'|'Q'|'H' (also supports 'L')
       qr.addData(text, "Byte");
       qr.make();
@@ -365,11 +480,10 @@
 
     function renderQrToCanvas(qr, opts) {
       const moduleCount = qr.getModuleCount();
-      const quiet = opts.quietModules; // modules
+      const quiet = opts.quietModules;
       const totalModules = moduleCount + (quiet * 2);
 
-      // Choose pixels per module based on target export size
-      // Ensure integer pixels for crisp edges.
+      // integer pixels-per-module for crisp edges
       const ppm = Math.max(1, Math.floor(opts.targetPx / totalModules));
       const sizePx = totalModules * ppm;
 
@@ -378,42 +492,69 @@
       canvas.height = sizePx;
       const ctx = canvas.getContext("2d");
 
-      // Background/frame (white) with corner radius
+      // Background/frame
       ctx.clearRect(0, 0, sizePx, sizePx);
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = opts.bgColor;
 
       const r = Math.min(opts.cornerRadiusPx, Math.floor(sizePx * 0.12));
       roundedRectPath(ctx, 0, 0, sizePx, sizePx, r);
       ctx.fill();
 
-      // Draw modules (black)
-      ctx.fillStyle = "#000000";
+      // Modules
+      ctx.fillStyle = opts.fgColor;
 
       for (let rIdx = 0; rIdx < moduleCount; rIdx++) {
         for (let cIdx = 0; cIdx < moduleCount; cIdx++) {
           if (!qr.isDark(rIdx, cIdx)) continue;
-
           const x = (cIdx + quiet) * ppm;
           const y = (rIdx + quiet) * ppm;
-
-          // Crisp square modules
           ctx.fillRect(x, y, ppm, ppm);
         }
+      }
+
+      // Logo overlay (optional)
+      if (opts.logoEnabled && opts.logoLoaded && opts.logoImg) {
+        const innerPx = moduleCount * ppm; // QR area excluding quiet zone
+        const innerX = quiet * ppm;
+        const innerY = quiet * ppm;
+
+        const logoPct = Math.max(0.10, Math.min(0.25, opts.logoSizePct)); // clamp
+        const logoBox = Math.floor(innerPx * logoPct);
+        const pad = Math.max(0, Math.min(50, opts.logoPaddingPx));
+
+        const boxX = innerX + Math.floor((innerPx - logoBox) / 2);
+        const boxY = innerY + Math.floor((innerPx - logoBox) / 2);
+
+        // Plate behind logo (helps legibility)
+        const plateX = boxX - pad;
+        const plateY = boxY - pad;
+        const plateW = logoBox + pad * 2;
+        const plateH = logoBox + pad * 2;
+
+        ctx.save();
+        // Slight rounding on plate
+        ctx.fillStyle = opts.logoPlateColor;
+        roundedRectPath(ctx, plateX, plateY, plateW, plateH, Math.min(16, Math.floor(plateW * 0.12)));
+        ctx.fill();
+
+        // Draw logo
+        ctx.drawImage(opts.logoImg, boxX, boxY, logoBox, logoBox);
+        ctx.restore();
       }
 
       return { canvas, ppm, sizePx, totalModules, moduleCount, quiet };
     }
 
-    // Export helpers
-    function canvasToDataUrl(canvas, type) {
+    function canvasToDataUrl(canvas, type, bgColor) {
       if (type === "png") return canvas.toDataURL("image/png");
 
-      // JPEG/WEBP need a white background (we already have one, but keep this safe)
+      // JPEG/WEBP: ensure solid background
       const bg = document.createElement("canvas");
       bg.width = canvas.width;
       bg.height = canvas.height;
+
       const ctx = bg.getContext("2d");
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = bgColor || "#ffffff";
       ctx.fillRect(0, 0, bg.width, bg.height);
       ctx.drawImage(canvas, 0, 0);
 
@@ -422,42 +563,37 @@
       return canvas.toDataURL("image/png");
     }
 
-    // Compute print guidance + auto-upgrade EC if needed
-    function computeAndApplyPrintGuidance(qrMaybe) {
+    // Guidance + auto-upgrade EC if needed
+    function computeAndApplyGuidance(qrMaybe) {
       const unit = printUnitEl.value;
       const inches = inchesFrom(printSizeEl.value, unit);
       const dpi = Number(dpiEl.value) || 300;
+      const quiet = Number(quietZoneEl.value) || 4;
 
-      // If we don't have a QR yet, we can still show generic guidance
-      if (!inches) {
-        hintEl.classList.add("warn");
-        hintEl.innerHTML = `Enter a valid print width to get scan/robustness guidance.`;
-        return { inches: null, dpi, recommendedEC: "Q", moduleMM: null, targetPx: 512, upgraded: false };
-      }
+      const fg = fgColorEl.value;
+      const bg = bgColorEl.value;
+      const cr = contrastRatio(fg, bg);
 
-      // If we have a QR matrix, use real module count for guidance
       let moduleMM = null;
       let recommendedEC = "Q";
       let moduleCount = null;
-      let quiet = Number(quietZoneEl.value) || 4;
 
-      if (qrMaybe) {
+      if (inches && qrMaybe) {
         moduleCount = qrMaybe.getModuleCount();
         const totalModules = moduleCount + (quiet * 2);
         const moduleInches = inches / totalModules;
         moduleMM = mmFromInches(moduleInches);
         recommendedEC = recommendedECFromModuleMM(moduleMM);
-      } else {
-        // fallback when no matrix yet
-        // Use your previous “long url” heuristic in spirit:
-        recommendedEC = "Q";
       }
 
-      // Auto-upgrade if user's selection is weaker than recommended.
-      // (If user chose Auto, we don't force the dropdown; we apply the effective EC at generate time.)
+      // If logo enabled, require at least Q (and often H for dense prints)
+      if (logoEnabledEl.checked) {
+        recommendedEC = maxEC(recommendedEC, "Q");
+      }
+
+      // If user chose manual EC, auto-upgrade if below recommended
       const userChoice = ecSelect.value;
       let upgraded = false;
-
       if (userChoice !== "auto") {
         const effective = maxEC(userChoice, recommendedEC);
         if (effective !== userChoice) {
@@ -466,78 +602,138 @@
         }
       }
 
-      const targetPx = exportPxFromPrint(inches, dpi);
+      const targetPx = inches ? exportPxFromPrint(inches, dpi) : 512;
 
-      // Build hint text
-      const sizeLabel = unit === "cm" ? `${Number(printSizeEl.value).toFixed(1)} cm` : `${Number(printSizeEl.value).toFixed(1)} in`;
-      const moduleLine = moduleMM != null
-        ? `<div><strong>Module size:</strong> ~${moduleMM.toFixed(2)} mm per module (bigger is easier to scan)</div>`
-        : `<div><strong>Module size:</strong> generate a QR to calculate precisely</div>`;
+      // Compose hint + warnings
+      const sizeLabel =
+        inches
+          ? (unit === "cm" ? `${Number(printSizeEl.value).toFixed(1)} cm` : `${Number(printSizeEl.value).toFixed(1)} in`)
+          : "—";
 
-      const recLine = `<div><strong>Recommended EC for this print size:</strong> ${recommendedEC}</div>`;
-      const pxLine = `<div><strong>Export size:</strong> ~${targetPx}px (based on ${dpi} DPI and ${sizeLabel} width)</div>`;
-      const quietLine = `<div><strong>Quiet zone:</strong> ${quiet} modules</div>`;
+      const pxLine = `<div><strong>Export size:</strong> ~${targetPx}px (based on ${dpi} DPI and ${sizeLabel})</div>`;
+      const qzLine = `<div><strong>Quiet zone:</strong> ${quiet} modules</div>`;
+      const ecLine = `<div><strong>Recommended EC:</strong> ${recommendedEC}${upgraded ? " (auto-upgraded)" : ""}</div>`;
 
-      const upgradePill = upgraded ? `<span class="pill">Upgraded EC</span>` : "";
-      const warnClass = (moduleMM != null && moduleMM < 0.6) ? "warn" : "";
+      const moduleLine =
+        moduleMM != null
+          ? `<div><strong>Module size:</strong> ~${moduleMM.toFixed(2)} mm per module (bigger is easier to scan)</div>`
+          : `<div><strong>Module size:</strong> generate a QR to calculate precisely</div>`;
 
-      hintEl.classList.remove("warn");
-      if (warnClass) hintEl.classList.add("warn");
+      const contrastLine =
+        cr != null
+          ? `<div><strong>Contrast ratio:</strong> ${cr.toFixed(2)}:1</div>`
+          : `<div><strong>Contrast ratio:</strong> —</div>`;
+
+      // Contrast warning thresholds:
+      // - < 3:1 is risky
+      // - 3–7:1 is okay-ish but not ideal for print/scanning in varied lighting
+      // - >= 7:1 is strong
+      let contrastWarn = "";
+      hintEl.classList.remove("warn", "bad");
+
+      if (cr != null) {
+        if (cr < 3.0) {
+          hintEl.classList.add("bad");
+          contrastWarn = `<div style="margin-top:6px;"><strong>Warning:</strong> Very low contrast. Choose a darker foreground and lighter background.</div>`;
+        } else if (cr < 7.0) {
+          hintEl.classList.add("warn");
+          contrastWarn = `<div style="margin-top:6px;"><strong>Heads up:</strong> Contrast is moderate. For best scanning (especially print), aim for 7:1 or higher.</div>`;
+        }
+      }
+
+      // Density warning
+      let densityWarn = "";
+      if (moduleMM != null && moduleMM < 0.6) {
+        hintEl.classList.add("warn");
+        densityWarn = `<div style="margin-top:6px;"><strong>Warning:</strong> This is dense for that print size. Consider larger print width, higher quiet zone, or shorter URL.</div>`;
+      }
+
+      // Logo note
+      const logoNote = logoEnabledEl.checked
+        ? `<div style="margin-top:6px;"><strong>Logo:</strong> enabled (we recommend EC ≥ Q; H if printing small).</div>`
+        : "";
 
       hintEl.innerHTML =
-        `<div><strong>Print guidance</strong> ${upgradePill}</div>` +
-        `${moduleLine}${recLine}${pxLine}${quietLine}` +
-        (moduleMM != null && moduleMM < 0.6
-          ? `<div style="margin-top:6px;"><strong>Warning:</strong> This is pretty dense for that print size. Consider a larger print width, higher quiet zone, or shorter URL.</div>`
-          : ``);
+        `<div><strong>Print + robustness guidance</strong></div>` +
+        moduleLine + ecLine + pxLine + qzLine + contrastLine + logoNote + contrastWarn + densityWarn;
 
-      return { inches, dpi, recommendedEC, moduleMM, targetPx, upgraded };
+      return { inches, dpi, quiet, recommendedEC, targetPx, moduleMM, contrast: cr };
     }
 
     function effectiveECForGenerate(recommendedEC) {
       const userChoice = ecSelect.value;
-      if (userChoice === "auto") return recommendedEC; // auto picks recommended from print size
-      return userChoice; // already auto-upgraded if needed by print changes
+      if (userChoice === "auto") return recommendedEC;
+      return userChoice; // may already have been upgraded
+    }
+
+    function refreshCornerUI() {
+      const isRounded = frameCornersEl.value === "rounded";
+      cornerRadiusEl.disabled = !isRounded;
+      cornerRadiusNote.style.opacity = isRounded ? "1" : "0.6";
+      cornerRadiusNote.textContent = `${cornerRadiusPx()} px`;
+    }
+
+    function refreshLogoUI() {
+      const enabled = logoEnabledEl.checked;
+      logoSizeEl.disabled = !enabled;
+      logoPaddingEl.disabled = !enabled;
+      logoPlateEl.disabled = !enabled;
+      logoSizeNote.style.opacity = enabled ? "1" : "0.6";
+      logoPaddingNote.style.opacity = enabled ? "1" : "0.6";
+      logoPreviewRow.style.display = (enabled && logoLoaded) ? "flex" : "none";
+      logoSizeNote.textContent = `${logoSizeEl.value}%`;
+      logoPaddingNote.textContent = `${logoPaddingEl.value} px`;
     }
 
     function generate() {
       const text = normalizeValue(input.value);
+
       qrBox.innerHTML = "";
       dlBtn.disabled = true;
       lastCanvas = null;
       lastMeta = null;
 
+      // Update slider notes
+      cornerRadiusNote.textContent = `${cornerRadiusPx()} px`;
+      logoSizeNote.textContent = `${logoSizeEl.value}%`;
+      logoPaddingNote.textContent = `${logoPaddingEl.value} px`;
+
       if (!text) {
-        computeAndApplyPrintGuidance(null);
+        computeAndApplyGuidance(null);
         return;
       }
 
-      // We'll build a provisional QR to compute exact module guidance using a baseline EC,
-      // then pick effective EC and rebuild if needed (so guidance and output match).
       const quiet = Number(quietZoneEl.value) || 4;
 
-      // Start by using Q as a reasonable baseline for matrix sizing; then adjust.
+      // Build a provisional matrix for accurate module sizing
       let qr = buildQrMatrix(text, "Q");
-      const guidance = computeAndApplyPrintGuidance(qr);
+      const guidance = computeAndApplyGuidance(qr);
 
+      // Choose EC (auto uses guidance; manual may have been upgraded)
       const ecKey = effectiveECForGenerate(guidance.recommendedEC);
+
       if (ecKey !== "Q") {
         qr = buildQrMatrix(text, ecKey);
-        // Recompute guidance using actual matrix for chosen EC (module count can change with EC)
-        // and re-apply. This keeps everything consistent.
-        Object.assign(guidance, computeAndApplyPrintGuidance(qr));
+        // Recompute guidance for actual EC (module count can change)
+        Object.assign(guidance, computeAndApplyGuidance(qr));
       }
 
-      const radius = cornerRadiusPx();
-      cornerRadiusNote.textContent = `${radius} px`;
-
-      const render = renderQrToCanvas(qr, {
+      const opts = {
         targetPx: guidance.targetPx,
         quietModules: quiet,
-        cornerRadiusPx: radius
-      });
+        cornerRadiusPx: cornerRadiusPx(),
+        fgColor: fgColorEl.value,
+        bgColor: bgColorEl.value,
 
-      // Show on page
+        logoEnabled: logoEnabledEl.checked,
+        logoLoaded,
+        logoImg,
+        logoSizePct: (Number(logoSizeEl.value) || 16) / 100,
+        logoPaddingPx: Number(logoPaddingEl.value) || 0,
+        logoPlateColor: logoPlateEl.value
+      };
+
+      const render = renderQrToCanvas(qr, opts);
       qrBox.appendChild(render.canvas);
 
       lastCanvas = render.canvas;
@@ -545,9 +741,7 @@
         ec: ecKey,
         printInches: guidance.inches,
         dpi: guidance.dpi,
-        exportPx: render.sizePx,
-        moduleCount: render.moduleCount,
-        quietModules: render.quiet
+        exportPx: render.sizePx
       };
 
       dlBtn.disabled = false;
@@ -558,11 +752,10 @@
       if (!lastCanvas) return;
 
       const type = fileTypeEl.value;
-      const dataUrl = canvasToDataUrl(lastCanvas, type);
-
+      const bg = bgColorEl.value;
+      const dataUrl = canvasToDataUrl(lastCanvas, type, bg);
       const ext = type === "jpeg" ? "jpg" : type;
 
-      // Filename includes print size & EC to help later
       let suffix = "";
       if (lastMeta?.printInches && lastMeta?.dpi) {
         const inches = lastMeta.printInches;
@@ -576,32 +769,47 @@
       a.click();
     }
 
-    // --- Wiring
-    function refreshCornerUI() {
-      const isRounded = frameCornersEl.value === "rounded";
-      cornerRadiusEl.disabled = !isRounded;
-      cornerRadiusNote.style.opacity = isRounded ? "1" : "0.6";
-      cornerRadiusNote.textContent = `${cornerRadiusPx()} px`;
-    }
-
-    // On print size changes, recompute guidance and auto-upgrade EC if needed; regenerate if a QR exists
     function onPrintRelatedChange() {
-      // If we already have a QR, rebuild it so the exported pixel size and EC match the new print settings
-      if (lastCanvas) {
-        generate();
-      } else {
-        computeAndApplyPrintGuidance(null);
-      }
+      if (lastCanvas) generate();
+      else computeAndApplyGuidance(null);
     }
 
+    // --- Logo upload
+    function handleLogoFile(file) {
+      logoLoaded = false;
+      logoImg = null;
+
+      if (!file) {
+        logoPreviewRow.style.display = "none";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          logoImg = img;
+          logoLoaded = true;
+
+          logoPreviewImg.src = img.src;
+          logoPreviewRow.style.display = (logoEnabledEl.checked ? "flex" : "none");
+          logoInfoEl.textContent = `${file.name} • ${img.naturalWidth}×${img.naturalHeight}`;
+
+          // If a QR exists, regenerate to apply the logo
+          if (lastCanvas) generate();
+          else computeAndApplyGuidance(null);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- Events
     genBtn.addEventListener("click", generate);
     dlBtn.addEventListener("click", downloadQr);
 
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
-    input.addEventListener("input", () => {
-      // Update guidance live (without rebuilding) if no QR yet
-      if (!lastCanvas) computeAndApplyPrintGuidance(null);
-    });
+    input.addEventListener("input", () => { if (!lastCanvas) computeAndApplyGuidance(null); });
 
     printSizeEl.addEventListener("input", onPrintRelatedChange);
     printUnitEl.addEventListener("change", onPrintRelatedChange);
@@ -609,9 +817,8 @@
     quietZoneEl.addEventListener("change", onPrintRelatedChange);
 
     ecSelect.addEventListener("change", () => {
-      // If user manually changes EC, regenerate if QR exists
       if (lastCanvas) generate();
-      else computeAndApplyPrintGuidance(null);
+      else computeAndApplyGuidance(null);
     });
 
     frameCornersEl.addEventListener("change", () => {
@@ -626,10 +833,46 @@
 
     fileTypeEl.addEventListener("change", setDownloadButtonText);
 
-    // Init
+    fgColorEl.addEventListener("input", () => {
+      if (lastCanvas) generate();
+      else computeAndApplyGuidance(null);
+    });
+    bgColorEl.addEventListener("input", () => {
+      if (lastCanvas) generate();
+      else computeAndApplyGuidance(null);
+    });
+
+    logoEnabledEl.addEventListener("change", () => {
+      refreshLogoUI();
+      // Turning on logo increases recommended EC; apply guidance immediately
+      if (lastCanvas) generate();
+      else computeAndApplyGuidance(null);
+    });
+
+    logoFileEl.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      handleLogoFile(f || null);
+    });
+
+    logoSizeEl.addEventListener("input", () => {
+      logoSizeNote.textContent = `${logoSizeEl.value}%`;
+      if (lastCanvas) generate();
+    });
+
+    logoPaddingEl.addEventListener("input", () => {
+      logoPaddingNote.textContent = `${logoPaddingEl.value} px`;
+      if (lastCanvas) generate();
+    });
+
+    logoPlateEl.addEventListener("input", () => {
+      if (lastCanvas) generate();
+    });
+
+    // --- Init
     refreshCornerUI();
+    refreshLogoUI();
     setDownloadButtonText();
-    computeAndApplyPrintGuidance(null);
+    computeAndApplyGuidance(null);
   </script>
 </body>
 </html>
