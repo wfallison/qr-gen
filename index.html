@@ -59,50 +59,88 @@
   <!-- ✅ correct library for the QRCode global -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
-  <script>
-    const input = document.getElementById("text");
-    const qrBox = document.getElementById("qr");
-    const genBtn = document.getElementById("generate");
-    const dlBtn = document.getElementById("download");
+<script>
+  const input = document.getElementById("text");
+  const qrBox = document.getElementById("qr");
+  const genBtn = document.getElementById("generate");
+  const dlBtn = document.getElementById("download");
 
-    function generate() {
-      const value = input.value.trim();
-      qrBox.innerHTML = "";
-      dlBtn.disabled = true;
+  function looksLikeBareDomain(s) {
+    // Very simple heuristic: has a dot, no spaces, no scheme, no obvious non-url chars
+    return (
+      /^[^\s]+$/.test(s) &&
+      s.includes(".") &&
+      !/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s) // no scheme like https://
+    );
+  }
 
-      if (!value) return;
+  function normalizeValue(raw) {
+    let v = String(raw ?? "").trim();
 
-      // qrcodejs API: new QRCode(element, options)
-      new QRCode(qrBox, {
-        text: value,
-        width: 256,
-        height: 256,
-        correctLevel: QRCode.CorrectLevel.M
-      });
+    // If user typed a bare domain like example.com/path, assume https://
+    if (looksLikeBareDomain(v)) v = "https://" + v;
 
-      dlBtn.disabled = false;
-    }
+    // Normalize some common paste issues (optional)
+    v = v.replace(/\r\n/g, "\n");
 
-    function downloadPng() {
-      // qrcodejs may render a canvas OR an img depending on the environment
-      const canvas = qrBox.querySelector("canvas");
-      const img = qrBox.querySelector("img");
+    return v;
+  }
 
-      let dataUrl = null;
-      if (canvas) dataUrl = canvas.toDataURL("image/png");
-      else if (img) dataUrl = img.src;
+  function pickQrOptions(text) {
+    // qrcodejs uses "correctLevel" and width/height
+    const len = text.length;
 
-      if (!dataUrl) return;
+    // Bigger size for longer strings (denser codes)
+    const size = len > 200 ? 512 : len > 100 ? 384 : 256;
 
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = "qr.png";
-      a.click();
-    }
+    // Higher correction for longer/dense text
+    const level =
+      len > 200 ? QRCode.CorrectLevel.H :
+      len > 100 ? QRCode.CorrectLevel.Q :
+      QRCode.CorrectLevel.M;
 
-    genBtn.addEventListener("click", generate);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
-    dlBtn.addEventListener("click", downloadPng);
-  </script>
+    return { size, level };
+  }
+
+  function generate() {
+    const value = normalizeValue(input.value);
+
+    qrBox.innerHTML = "";
+    dlBtn.disabled = true;
+    if (!value) return;
+
+    const { size, level } = pickQrOptions(value);
+
+    new QRCode(qrBox, {
+      text: value,
+      width: size,
+      height: size,
+      correctLevel: level
+    });
+
+    dlBtn.disabled = false;
+  }
+
+  function downloadPng() {
+    const canvas = qrBox.querySelector("canvas");
+    const img = qrBox.querySelector("img");
+
+    let dataUrl = null;
+    if (canvas) dataUrl = canvas.toDataURL("image/png");
+    else if (img) dataUrl = img.src;
+
+    if (!dataUrl) return;
+
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = "qr.png";
+    a.click();
+  }
+
+  genBtn.addEventListener("click", generate);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") generate(); });
+  dlBtn.addEventListener("click", downloadPng);
+</script>
+
 </body>
 </html>
